@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Iresults_Gdpr>
+            <version>1.0.0</version>
+        </Iresults_Gdpr>
+    </modules>
+    <global>
+        <models>
+            <iresults_gdpr>
+                <class>Iresults_Gdpr_Model</class>
+            </iresults_gdpr>
+        </models>
+        <blocks>
+            <iresults_gdpr>
+                <class>Iresults_Gdpr_Block</class>
+            </iresults_gdpr>
+        </blocks>
+        <helpers>
+            <iresults_gdpr>
+                <class>Iresults_Gdpr_Helper</class>
+            </iresults_gdpr>
+        </helpers>
+    </global>
+    <frontend>
+        <routers>
+            <iresults_gdpr>
+                <use>standard</use>
+                <args>
+                    <frontName>gdpr</frontName>
+                    <module>Iresults_Gdpr</module>
+                </args>
+            </iresults_gdpr>
+        </routers>
+    </frontend>
+</config>
