@@ -2,7 +2,7 @@
 
 namespace Iresults\Gdpr\Model\Shell\Command\Sales\Order;
 
-use InvalidArgumentException;
+use Iresults\Shell\Color;
 use Iresults\Shell\InputInterface;
 use Iresults\Shell\OutputInterface;
 use Mage_Sales_Model_Order as Order;
@@ -13,9 +13,29 @@ use Mage_Sales_Model_Resource_Order_Collection as OrderCollection;
  */
 class ListCommand extends AbstractOrderCommand
 {
+    /**
+     * Return the available filter arguments
+     *
+     * At least one of these arguments must be provided when invoking the CLI tool
+     *
+     * @return string[]
+     */
+    protected function getAvailableFilters()
+    {
+        return [
+            'age',
+            'customer',
+            'guests',
+            'guest',
+            'no-guests',
+            'no-guest',
+            'email',
+        ];
+    }
+
     public function execute(InputInterface $input, OutputInterface $output, OutputInterface $errorOutput)
     {
-        $orders = $this->getMatchingOrders($input);
+        $orders = $this->getMatchingOrders($input, $errorOutput);
 
         $this->printHeader('Orders', $output);
         foreach ($orders as $order) {
@@ -34,11 +54,25 @@ class ListCommand extends AbstractOrderCommand
      * @return Order[]|OrderCollection
      * @throws \Exception
      */
-    protected function getMatchingOrders(InputInterface $input)
+    protected function getMatchingOrders(InputInterface $input, OutputInterface $errorOutput)
     {
-        if (0 === count($input->getArguments())) {
-            throw new InvalidArgumentException('No filter argument given');
+        if (!$this->hasFilterApplied($input)) {
+            $errorOutput->writeln(Color::red('[ERROR] No filter argument given'));
+
+            $filterArguments = PHP_EOL
+                . implode(
+                    PHP_EOL,
+                    array_map(
+                        function ($f) {
+                            return ' - ' . $f;
+                        },
+                        $this->getAvailableFilters()
+                    )
+                );
+            $errorOutput->writeln('Provide at least one of the following arguments: %s', $filterArguments);
+            exit(1);
         }
+
         /** @var OrderCollection|Order[] $orders */
         $orders = $this->getOrdersCollection();
 
@@ -49,5 +83,25 @@ class ListCommand extends AbstractOrderCommand
         $orders = $this->applyEmailFilter($input, $orders);
 
         return $orders;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return bool
+     */
+    protected function hasFilterApplied(InputInterface $input)
+    {
+        if (0 === count($input->getArguments())) {
+            return false;
+        }
+
+        $availableFilters = $this->getAvailableFilters();
+        foreach ($availableFilters as $argumentName) {
+            if ($input->hasArgument($argumentName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -13,7 +13,7 @@ class DeleteAllCommand extends ListCommand
 {
     public function execute(InputInterface $input, OutputInterface $output, OutputInterface $errorOutput)
     {
-        $orders = $this->getMatchingOrders($input);
+        $orders = $this->getMatchingOrders($input, $errorOutput);
 
         // The argument `force` is required to really delete the Orders
         $force = $input->hasArgument('force');
